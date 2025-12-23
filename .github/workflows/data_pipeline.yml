@@ -1,26 +1,24 @@
 name: Data Preprocessing Pipeline
-
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
-  preprocess-job:
+  build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.12.7
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12.7'
 
       - name: Install dependencies
-        run: pip install pandas numpy scikit-learn
+        run: |
+          pip install pandas numpy scikit-learn
 
-      - name: Run Preprocessing Script
-        # Pastiin folder dan nama file ini SAMA PERSIS kayak di explorer kiri lu
+      - name: Check Files
+        run: ls -R  
+
+      - name: Run Preprocessing
         run: python preprocessing/automate_alvin.py
