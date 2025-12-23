@@ -17,15 +17,31 @@ jobs:
       - name: Install Dependencies
         run: pip install mlflow==2.19.0 pandas scikit-learn dagshub matplotlib
 
+      # --- STEP KHUSUS BUAT NGINTIP STRUKTUR FOLDER ---
+      - name: DEBUG - Cek Mata
+        run: |
+          echo "=== LOKASI SAYA SEKARANG ==="
+          pwd
+          echo ""
+          echo "=== ISI FOLDER ROOT (ALL) ==="
+          ls -la
+          echo ""
+          echo "=== CARI FOLDER WORKFLOW ==="
+          find . -maxdepth 2 -name "*orkflow*"
+          echo ""
+          echo "=== CARI FOLDER MLPROJECT ==="
+          find . -maxdepth 3 -name "MLProject"
+      # ------------------------------------------------
+
       - name: Train Model
         run: |
-          # GANTI JADI STRIP (-)
+          # Kita coba masuk pake nama Workflow-CI (sesuai tebakan terakhir)
+          # Kalau gagal, dia bakal error disini, tapi log DEBUG di atas tetep kebaca
           cd Workflow-CI/MLProject
           python modelling.py
 
       - name: Populate .workflow folder
         run: |
-          # GANTI JADI STRIP (-)
           cp .github/workflows/ci_pipeline.yml Workflow-CI/.workflow/ci_pipeline.yml || true
 
       - name: Login to Docker Hub
@@ -38,9 +54,11 @@ jobs:
         run: |
           cd Workflow-CI/MLProject
           
+          # Ambil Run ID
           RUN_ID=$(cat last_run_id.txt)
           echo "Building Docker Image for Run ID: $RUN_ID"
           
+          # Hardcode Username
           mlflow models build-docker \
             -m "runs:/$RUN_ID/model" \
             -n "alvinmahesa/heart-disease-model:latest" \
