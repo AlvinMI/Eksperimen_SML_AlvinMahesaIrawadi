@@ -17,31 +17,24 @@ jobs:
       - name: Install Dependencies
         run: pip install mlflow==2.19.0 pandas scikit-learn dagshub matplotlib
 
-      # --- STEP KHUSUS BUAT NGINTIP STRUKTUR FOLDER ---
-      - name: DEBUG - Cek Mata
-        run: |
-          echo "=== LOKASI SAYA SEKARANG ==="
-          pwd
-          echo ""
-          echo "=== ISI FOLDER ROOT (ALL) ==="
-          ls -la
-          echo ""
-          echo "=== CARI FOLDER WORKFLOW ==="
-          find . -maxdepth 2 -name "*orkflow*"
-          echo ""
-          echo "=== CARI FOLDER MLPROJECT ==="
-          find . -maxdepth 3 -name "MLProject"
-      # ------------------------------------------------
-
       - name: Train Model
         run: |
-          # Kita coba masuk pake nama Workflow-CI (sesuai tebakan terakhir)
-          # Kalau gagal, dia bakal error disini, tapi log DEBUG di atas tetep kebaca
-          cd Workflow-CI/MLProject
+          # Cari folder yang nyimpen file modelling.py
+          TARGET_DIR=$(find . -name "modelling.py" -exec dirname {} \; | head -n 1)
+          
+          if [ -z "$TARGET_DIR" ]; then
+            echo "GAWAT! File modelling.py gak ketemu sama sekali!"
+            exit 1
+          fi
+          
+          echo "✅ Kodingan ketemu di folder: $TARGET_DIR"
+          cd "$TARGET_DIR"
           python modelling.py
 
       - name: Populate .workflow folder
         run: |
+          # Pastikan folder tujuan ada
+          mkdir -p Workflow-CI/.workflow
           cp .github/workflows/ci_pipeline.yml Workflow-CI/.workflow/ci_pipeline.yml || true
 
       - name: Login to Docker Hub
@@ -52,13 +45,12 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          cd Workflow-CI/MLProject
+          TARGET_DIR=$(find . -name "modelling.py" -exec dirname {} \; | head -n 1)
+          cd "$TARGET_DIR"
           
-          # Ambil Run ID
           RUN_ID=$(cat last_run_id.txt)
           echo "Building Docker Image for Run ID: $RUN_ID"
           
-          # Hardcode Username
           mlflow models build-docker \
             -m "runs:/$RUN_ID/model" \
             -n "alvinmahesa/heart-disease-model:latest" \
