@@ -19,18 +19,10 @@ jobs:
 
       - name: Train Model with MLflow Project
         run: |
-          # Pake -iname biar gak pusing sama huruf besar kecil
           TARGET_DIR=$(find . -iname "MLproject" -exec dirname {} \; | head -n 1)
-          
-          if [ -z "$TARGET_DIR" ]; then
-            echo "❌ ERROR: File MLproject tetep gak ketemu di folder mana pun!"
-            ls -R # Biar kita bisa liat struktur folder lu di log
-            exit 1
-          fi
-          
-          echo "✅ MLproject ketemu di folder: $TARGET_DIR"
           cd "$TARGET_DIR"
-          mlflow run .
+          # Tambahin --env-manager local biar gak error Conda lagi
+          mlflow run . --env-manager local
 
       - name: Populate .workflow folder
         run: |
