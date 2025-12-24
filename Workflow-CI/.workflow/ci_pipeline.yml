@@ -19,7 +19,6 @@ jobs:
 
       - name: Train Model
         run: |
-          # Cari folder yang nyimpen file modelling.py
           TARGET_DIR=$(find . -name "modelling.py" -exec dirname {} \; | head -n 1)
           
           if [ -z "$TARGET_DIR" ]; then
@@ -33,7 +32,6 @@ jobs:
 
       - name: Populate .workflow folder
         run: |
-          # Pastikan folder tujuan ada
           mkdir -p Workflow-CI/.workflow
           cp .github/workflows/ci_pipeline.yml Workflow-CI/.workflow/ci_pipeline.yml || true
 
