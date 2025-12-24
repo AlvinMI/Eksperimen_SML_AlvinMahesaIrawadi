@@ -17,19 +17,20 @@ jobs:
       - name: Install Dependencies
         run: pip install mlflow==2.19.0 pandas scikit-learn dagshub matplotlib
 
-      - name: Train Model
+      - name: Train Model with MLflow Project
         run: |
-          # Cari folder yang nyimpen file modelling.py
-          TARGET_DIR=$(find . -name "modelling.py" -exec dirname {} \; | head -n 1)
+          # Cari folder yang ada file MLproject
+          TARGET_DIR=$(find . -name "MLproject" -exec dirname {} \; | head -n 1)
           
           if [ -z "$TARGET_DIR" ]; then
-            echo "GAWAT! File modelling.py gak ketemu sama sekali!"
+            echo "GAWAT! File MLproject gak ketemu!"
             exit 1
           fi
           
-          echo "✅ Kodingan ketemu di folder: $TARGET_DIR"
+          echo "✅ MLproject ketemu di folder: $TARGET_DIR"
           cd "$TARGET_DIR"
-          python modelling.py
+          # Pakai perintah ini sesuai suruhan reviewer
+          mlflow run .
 
       - name: Populate .workflow folder
         run: |
