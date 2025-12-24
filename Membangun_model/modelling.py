@@ -7,14 +7,20 @@ import os
 
 mlflow.autolog()
 
-print("Memuat data dari URL (Pasti Ketemu)...")
-url = "https://raw.githubusercontent.com/ammarranees/Heart-Disease-Dataset/main/heart.csv"
-df = pd.read_csv(url)
+print("Memuat data dari Link Permanent (PASTI JALAN)...")
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data"
+
+column_names = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 
+                'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', 'HeartDisease']
+
+df = pd.read_csv(url, names=column_names, na_values="?")
+
+df = df.dropna()
+
+df['HeartDisease'] = df['HeartDisease'].apply(lambda x: 1 if x > 0 else 0)
 
 X = df.drop(columns=['HeartDisease'])
 y = df['HeartDisease']
-
-X = pd.get_dummies(X)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -30,4 +36,4 @@ with mlflow.start_run(run_name="Heart_Disease_Final_Model") as run:
     with open("last_run_id.txt", "w") as f:
         f.write(run.info.run_id)
 
-print("✅ Model selesai dilatih dan Run ID aman.")
+print("✅ Model SELESAI. Run ID Aman!")
