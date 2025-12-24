@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  model_serving:
+    build: .
+    container_name: model_serving_container
+    image: alvinmahesa/heart-disease-model:latest
+    ports:
+      - "8090:8080" # Port API Serving
+      - "8082:8082" # Port Metrics untuk Prometheus
+    environment:
+      - MLSERVER_MODEL_NAME=mlflow-model
+      - MLSERVER_PARALLEL_WORKERS=0
+      - MLSERVER_METRICS_ENDPOINT=/metrics
+    networks:
+      - ml_network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus_container
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - ml_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana_container
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - ml_network
+
+networks:
+  ml_network:
+    driver: bridge
