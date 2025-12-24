@@ -19,17 +19,17 @@ jobs:
 
       - name: Train Model with MLflow Project
         run: |
-          # Cari folder yang ada file MLproject
-          TARGET_DIR=$(find . -name "MLproject" -exec dirname {} \; | head -n 1)
+          # Pake -iname biar gak pusing sama huruf besar kecil
+          TARGET_DIR=$(find . -iname "MLproject" -exec dirname {} \; | head -n 1)
           
           if [ -z "$TARGET_DIR" ]; then
-            echo "GAWAT! File MLproject gak ketemu!"
+            echo "❌ ERROR: File MLproject tetep gak ketemu di folder mana pun!"
+            ls -R # Biar kita bisa liat struktur folder lu di log
             exit 1
           fi
           
           echo "✅ MLproject ketemu di folder: $TARGET_DIR"
           cd "$TARGET_DIR"
-          # Pakai perintah ini sesuai suruhan reviewer
           mlflow run .
 
       - name: Populate .workflow folder
